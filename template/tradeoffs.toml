@@ -1,0 +1,11 @@
+# Accepted trade-offs: a failing gate counts as WAIVED (not FAIL) only with an unexpired entry here.
+# Every waiver needs a decision record in docs/decisions/. Security (sec.*) waivers: 30 days max.
+# Gate ids: sec.deps sec.code sec.secrets sec.lock cor.tests cor.types perf.startup perf.bench
+#           mnt.format mnt.lint arch.layers rel.logging
+#
+# [[waiver]]
+# gate     = "perf.startup"
+# reason   = "pandas import adds ~400 ms; needed for reporting, CLI is not latency-sensitive"
+# decision = "docs/decisions/0001-use-pandas-for-reports.md"
+# decided  = 2026-10-20
+# expires  = 2027-01-20

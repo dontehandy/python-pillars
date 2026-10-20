@@ -1,0 +1,85 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "pytest-benchmark",
+    "pip-audit",
+    "import-linter",
+]
+
+[project.scripts]
+app = "app.entrypoints.cli:main"
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+# ---- Pillar 3: performance budgets (checked by scripts/check.sh and tests/test_budgets.py) ----
+[tool.budgets]
+startup_ms = 300        # time to `import app` in a fresh interpreter
+peak_memory_mb = 50     # peak memory of the reference workload in tests/test_budgets.py
+benchmark_regression_pct = 10
+
+# ---- Pillars 1, 4, 6: lint rules ----
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "UP", "B", "SIM", "C4", "RUF", "PL",
+    "C90",          # complexity (maintainability)
+    "D",            # docstrings (maintainability)
+    "S",            # bandit security rules (security)
+    "T20", "BLE",   # no print, no blind except (reliability)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "PLR2004"]
+
+# ---- Pillar 2: correctness ----
+[tool.mypy]
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+
+# ---- Pillar 5: architecture (dependencies point inward) ----
+[tool.importlinter]
+root_package = "app"
+
+[[tool.importlinter.contracts]]
+name = "Layers: entrypoints -> service_layer -> adapters -> domain"
+type = "layers"
+layers = [
+    "app.entrypoints",
+    "app.service_layer",
+    "app.adapters",
+    "app.domain",
+]
